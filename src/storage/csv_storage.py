@@ -21,7 +21,7 @@ class CSVStorage[T: Serializable | HasId](StorageProtocol):
         with self.file_path.open("w") as file:
             writer = DictWriter(
                 f=file,
-                fieldnames=self.model_class.seralizable_fields,
+                fieldnames=self.model_class.serializable_fields,
             )
             writer.writeheader()
             writer.writerows(

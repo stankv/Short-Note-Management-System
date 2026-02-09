@@ -6,7 +6,7 @@ from src.models.entity import Entity
 
 class Category(Entity, Serializable):
 
-    seralizable_fields = (
+    serializable_fields = (
         "id",
         "title",
         "description",

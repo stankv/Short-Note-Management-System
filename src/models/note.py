@@ -1,10 +1,18 @@
 from typing import Self
 from uuid import UUID, uuid4
 
+from src.mixins.serializable import Serializable
 from src.models.entity import Entity
 from src.models.category import Category
 
-class Note(Entity):
+class Note(Serializable, Entity):
+    serializable_fields = (
+        "id",
+        "title",
+        "description",
+        "tag",
+        "category",
+    )
     def __init__(
             self,
             id: UUID,
@@ -13,7 +21,7 @@ class Note(Entity):
             tag: str,
             category: Category,
     ):
-        super().__init__(id, title, description)
+        Entity.__init__(self, id, title, description)
         self._tag = ""
         self.tag = tag
         self._category = category
@@ -31,6 +39,14 @@ class Note(Entity):
         if not isinstance(value, str):
             raise TypeError(f"Тег должен быть строкой! Получен объект {type(value)}")
         self._tag = value
+
+    def serialize_category(self) -> str:
+        return str(self.category.id)
+
+    @classmethod
+    def deserialize_category(cls, value: str) -> int:
+        from src.storage.category_storage import category_storage
+        return category_storage.data[UUID(value)]
 
     @classmethod
     def create(

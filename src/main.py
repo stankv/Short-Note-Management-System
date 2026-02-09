@@ -1,10 +1,11 @@
 from uuid import uuid4
 
-from src.models import Category, Note
+from src.models.category import Category
+from src.models.note import Note
 from src.storage.csv_storage import CSVStorage
 from src.storage.category_storage import category_storage
 
-from settings import CATEGORIES_STORAGE_PATH
+from settings import CATEGORIES_STORAGE_PATH, NOTES_STORAGE_PATH
 
 
 def print_data(data: dict):
@@ -71,13 +72,18 @@ def main():
         category=category,
     )
     print(fork)
-    print([fork])
-    print()
-    print(fork.id)
-    print(fork.title)
-    print(fork.description)
-    print(fork.tag)
-    print(fork.category)
+
+    storage = CSVStorage(
+        file_path=NOTES_STORAGE_PATH,
+        model_class=Note,
+    )
+    storage.data[fork.id] = fork
+    storage.save()
+    storage.load()
+    print_data(storage.data)
+    for note in storage.data.values():
+        print(type(note.category))
+        print(note.category)
 
 if __name__ == "__main__":
     main()
