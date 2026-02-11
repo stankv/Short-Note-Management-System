@@ -16,6 +16,9 @@ class CSVStorage[T: Serializable | HasId](StorageProtocol):
         self.model_class = model_class
         self.data: dict[UUID, T] = {}
 
+    def get_all(self) -> list[T]:
+        return list(self.data.values())
+
     def save(self) -> None:
         self.file_path.parent.mkdir(parents=True, exist_ok=True)
         with self.file_path.open("w") as file:

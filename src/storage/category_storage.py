@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import settings
-from src.models.category import Category
+from src.models import Category
 from src.storage.csv_storage import CSVStorage
 
 
@@ -19,9 +19,6 @@ class CategoryStorage(CSVStorage):
         self.data[category.id] = category
         self.save()
         return category
-
-    def get_all(self) -> list[Category]:
-        return list(self.data.values())
 
     def get_by_title(self, title: str) -> Category | None:
         for category in self.get_all():

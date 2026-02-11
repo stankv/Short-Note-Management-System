@@ -4,8 +4,9 @@ from src.models.category import Category
 from src.models.note import Note
 from src.storage.csv_storage import CSVStorage
 from src.storage.category_storage import category_storage
+from src.storage.note_storage import note_storage
 
-from settings import CATEGORIES_STORAGE_PATH, NOTES_STORAGE_PATH
+from settings import CATEGORIES_STORAGE_PATH
 
 
 def print_data(data: dict):
@@ -65,25 +66,16 @@ def example_category_storage():
 
 def main():
     category = category_storage.get_by_title("Купить")
-    fork = Note.create(
+    fork = note_storage.create(
         title="Огурцы",
         description="Огурцы грунтовые в Пятерочке по 177 руб.",
         tag="Покупки",
         category=category,
     )
     print(fork)
-
-    storage = CSVStorage(
-        file_path=NOTES_STORAGE_PATH,
-        model_class=Note,
-    )
-    storage.data[fork.id] = fork
-    storage.save()
-    storage.load()
-    print_data(storage.data)
-    for note in storage.data.values():
-        print(type(note.category))
-        print(note.category)
+    print_data(note_storage.data)
+    for note in note_storage.get_all():
+        print(note)
 
 if __name__ == "__main__":
     main()
