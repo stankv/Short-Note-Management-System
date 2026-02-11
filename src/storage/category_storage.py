@@ -5,12 +5,12 @@ from src.models import Category
 from src.storage.csv_storage import CSVStorage
 
 
-class CategoryStorage(CSVStorage):
+class CategoryStorage[T: Category](CSVStorage[T]):
     """Хранение типов заметок"""
     def __init__(
             self,
             filepath: Path,
-            model_class=Category,
+            model_class: type[T] =Category,
     ):
         super().__init__(filepath, model_class)
 

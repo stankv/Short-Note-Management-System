@@ -1,81 +1,133 @@
-from uuid import uuid4
-
-from src.models.category import Category
-from src.models.note import Note
-from src.storage.csv_storage import CSVStorage
 from src.storage.category_storage import category_storage
 from src.storage.note_storage import note_storage
 
-from settings import CATEGORIES_STORAGE_PATH
-
-
-def print_data(data: dict):
-    for key, value in data.items():
-        print(key, value)
-    print()
-
-
-def demo_create_and_read():
-    category = Category.create(
-        title="Сделать",
-        description="Покупки, уборка, мелкий ремонт, стирка",
+def create_categories():
+    category_storage.create(
+        title="Домашние дела",
+        description="Уборка, стирка, готовка",
     )
-    print(category)
-    print(category.title, "|", category.description)
-    print()
-    print(category.to_dict())
-    print()
-    data = {
-        "id": uuid4(),
-        "title": "Купить",
-        "description": "Продукты, одежда, чистящие средства, техника, мебель",
-    }
-    print("Новая категория: ", data)
-    new_category = Category.from_dict(data)
-    print(new_category)
-    print(new_category.title, "|", new_category.description)
-    print()
-    print()
-    category_storage = CSVStorage(
-        file_path=CATEGORIES_STORAGE_PATH,
-        model_class=Category,
+    category_storage.create(
+        title="Работа",
+        description="Проектирование, разработка, тестирование, деплой",
     )
-    category_storage.load()
-    print_data(category_storage.data)
-    category_storage.data[category.id] = category
-    category_storage.data[new_category.id] = new_category
-    print(category_storage.data)
-    category_storage.save()
-    print_data(category_storage.data)
-
-def example_category_storage():
-    category = category_storage.create(
-        title="Оплатить квитанции",
-        description="ЖКХ, Отопление, Электричество, Налог на имущество"
+    category_storage.create(
+        title="Купить",
+        description="Продукты, одежда, техника",
     )
-    print(category)
-    print()
+    category_storage.create(
+        title="Оплатить",
+        description="ЖКХ, отопление, электричество",
+    )
 
-    for k in category_storage.get_all():
-        print(k)
-    print()
+def create_notes():
+    household_chores = category_storage.get_by_title("Домашние дела")
+    job = category_storage.get_by_title("Работа")
+    shopping = category_storage.get_by_title("Купить")
+    pay = category_storage.get_by_title("Оплатить")
 
-    dishes_category = category_storage.get_by_title("Сделать")
-    print("Найдена категория:")
-    print(dishes_category)
+    # household_chores
+    note_storage.create(
+        title="Уборка гостинной",
+        description="Сухая и влажная уборка, чистка ковра",
+        tag="Уборка",
+        category=household_chores,
+    )
+    note_storage.create(
+        title="Постирать вещи",
+        description="Постирать одежду, и занавески",
+        tag="Стирка",
+        category=household_chores,
+    )
+    note_storage.create(
+        title="Приготовить обед",
+        description="Сварить борщ, поджарить картошку, запечь курицу",
+        tag="Готовка",
+        category=household_chores,
+    )
+
+    # job
+    note_storage.create(
+        title="Проектирование системы управления заметками",
+        description="Спроектировать систему в парадигме ООП",
+        tag="Проектирование",
+        category=job,
+    )
+    note_storage.create(
+        title="Разработать модули спроектированной системы",
+        description="Написать и протестировать код",
+        tag="Кодинг",
+        category=job,
+    )
+    note_storage.create(
+        title="Деплой проекта",
+        description="Развернуть проект на рабочем сервере",
+        tag="Деплой",
+        category=job,
+    )
+
+    # shopping
+    note_storage.create(
+        title="Хлеб",
+        description="Круглый черный хлеб",
+        tag="Продукты",
+        category=shopping,
+    )
+    note_storage.create(
+        title="Картофель",
+        description="Картофель в Магните по 40р.",
+        tag="Овощи",
+        category=shopping,
+    )
+    note_storage.create(
+        title="Куртка",
+        description="Черная спортивная куртка в Ozon",
+        tag="Одежда",
+        category=shopping,
+    )
+    note_storage.create(
+        title="Наушники",
+        description="Беспроводные наушники Apple",
+        tag="Техника",
+        category=shopping,
+    )
+
+    # pay ЖКХ, отопление, электричество
+    note_storage.create(
+        title="Квитанции ЖКХ",
+        description="Оплатить квитанции ЖКХ до 25-го",
+        tag="Квитанции",
+        category=pay,
+    )
+    note_storage.create(
+        title="Счет за отопление",
+        description="Оплатить счет за отопление до 12-го",
+        tag="Отопление",
+        category=pay,
+    )
+    note_storage.create(
+        title="Счет за электричество",
+        description="Снять показания счетчика и оплатить",
+        tag="Готовка",
+        category=pay,
+    )
+
+
 
 def main():
-    category = category_storage.get_by_title("Купить")
-    fork = note_storage.create(
-        title="Огурцы",
-        description="Огурцы грунтовые в Пятерочке по 177 руб.",
-        tag="Покупки",
-        category=category,
-    )
-    print(fork)
-    print_data(note_storage.data)
-    for note in note_storage.get_all():
-        print(note)
+    if not category_storage.data:
+        create_categories()
+        print("Созданы новые категории заметок")
+    if not note_storage.data:
+        create_notes()
+        print("Созданы новые заметки")
+    all_categories = category_storage.get_all()
+    for category in all_categories:
+        print("Заметки категории", category.title)
+        notes = note_storage.get_by_category(category)
+        for note in notes:
+            print("-", note)
+
+        print()
 
 if __name__ == "__main__":
     main()
